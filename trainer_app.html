@@ -808,16 +808,17 @@ let S = {
 try{const sv=localStorage.getItem('trn3');if(sv)S={...S,...JSON.parse(sv)};}catch(e){}
 function save(){try{localStorage.setItem('trn3',JSON.stringify(S));}catch(e){}}
 
-const DOW=new Date().getDay();
-const SCHED_IDX=DOW===0?6:DOW-1;
-const IS_A=SCHED_IDX===0||SCHED_IDX===4;
-const IS_B=SCHED_IDX===2;
-const IS_TENNIS=SCHED_IDX===5;
+// Date computed fresh on every call — not cached
+function getTodayDOW(){ return new Date().getDay(); }
+function getSchedIdx(){ const d=getTodayDOW(); return d===0?6:d-1; }
+function isA(){ const i=getSchedIdx(); return i===0||i===4; }
+function isB(){ return getSchedIdx()===2; }
+function isTennis(){ return getSchedIdx()===5; }
 
 function todayTrain(){
-  if(IS_A)return{title:'💜 Тренировка А — Кор и Ягодицы',exs:TRAIN_A};
-  if(IS_B)return{title:'💙 Тренировка Б — Спина, Плечи, Подтягивания',exs:TRAIN_B};
-  if(IS_TENNIS)return{title:'🎾 Теннис',exs:[
+  if(isA())return{title:'💜 Тренировка А — Кор и Ягодицы',exs:TRAIN_A};
+  if(isB())return{title:'💙 Тренировка Б — Спина, Плечи, Подтягивания',exs:TRAIN_B};
+  if(isTennis())return{title:'🎾 Теннис',exs:[
     {id:'t1',n:'Разминка 12–15 мин',ru:'Кнопка 🔥 выше → список упражнений',p:''},
     {id:'t2',n:'Теннис на корте',ru:'Подачи ≤30% времени · первые 6 недель',p:'45–60 мин'},
     {id:'t3',n:'Восстановление 10–12 мин',ru:'Кнопка 🧊 выше → список упражнений',p:''},
@@ -1120,8 +1121,9 @@ function renderLib(f){
 // SCHEDULE
 // ═══════════════════════════════════════
 function renderSched(){
+  const todayIdx=getSchedIdx();
   document.getElementById('schedList').innerHTML=SCHED.map((s,i)=>{
-    const isT=i===SCHED_IDX;
+    const isT=i===todayIdx;
     return`<div style="display:flex;align-items:start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);${i===SCHED.length-1?'border-bottom:none':''}">
       <span style="font-size:18px;flex-shrink:0">${s.e}</span>
       <div><div style="font-size:13px;font-weight:${isT?700:500};color:${isT?'var(--accent)':'var(--text)'}">${s.day} — ${s.l}</div>
