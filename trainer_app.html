@@ -94,9 +94,36 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .ci-name{font-size:13px;font-weight:500;}
 .ci.done .ci-name{color:var(--t3);text-decoration:line-through;}
 .ci-detail{font-size:11px;color:var(--t3);margin-top:2px;}
-/* YouTube button — SEPARATE from tap area so it's always clickable */
+/* Info button */
+.info-btn{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(88,166,255,.12);border:1.5px solid rgba(88,166,255,.3);color:var(--accent2);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.info-btn:active{background:rgba(88,166,255,.25);transform:scale(.92);}
+/* YT button for library only */
 .yt-btn{flex-shrink:0;display:inline-flex;align-items:center;gap:3px;background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.25);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;cursor:pointer;}
 .yt-btn:hover{background:rgba(248,81,73,.22);}
+
+/* EXERCISE MODAL */
+.ex-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:90;display:none;align-items:flex-end;justify-content:center;}
+.ex-modal-overlay.open{display:flex;}
+.ex-modal{background:var(--s1);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:92dvh;overflow-y:auto;padding-bottom:30px;}
+.ex-modal::-webkit-scrollbar{width:0;}
+.ex-modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;}
+.ex-modal-hd{padding:10px 16px 14px;border-bottom:1px solid var(--border);display:flex;align-items:start;justify-content:space-between;gap:12px;}
+.ex-modal-titles{flex:1;}
+.ex-modal-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--text);line-height:1.1;}
+.ex-modal-ru{font-size:13px;color:var(--accent2);margin-top:3px;}
+.ex-modal-close{background:var(--s2);border:none;color:var(--t2);font-size:18px;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.ex-modal-body{padding:14px 16px;}
+.ex-modal-params{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.ex-param-chip{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:rgba(57,211,83,.1);color:var(--accent);}
+.ex-modal-section{margin-bottom:14px;}
+.ex-modal-section h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);margin-bottom:6px;}
+.ex-modal-section p{font-size:13px;color:var(--t2);line-height:1.7;}
+.ex-modal-steps{display:flex;flex-direction:column;gap:6px;}
+.ex-step{display:flex;align-items:start;gap:10px;padding:8px 10px;background:var(--s2);border-radius:8px;}
+.ex-step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#000;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ex-step-text{font-size:12px;color:var(--t2);line-height:1.6;}
+.ex-modal-warn{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--red);line-height:1.6;}
+.ex-modal-yt{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;border:none;margin-top:14px;background:#000;}
 
 /* WEEK GRID */
 .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px;}
@@ -527,6 +554,36 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 <!-- FAB -->
 <button class="fab" onclick="openDrawer('warmup')">🎾</button>
 
+<!-- EXERCISE INFO MODAL -->
+<div class="ex-modal-overlay" id="exModalOverlay" onclick="maybeCloseExModal(event)">
+  <div class="ex-modal" id="exModal">
+    <div class="ex-modal-handle"></div>
+    <div class="ex-modal-hd">
+      <div class="ex-modal-titles">
+        <div class="ex-modal-name" id="emName"></div>
+        <div class="ex-modal-ru" id="emRu"></div>
+      </div>
+      <button class="ex-modal-close" onclick="closeExModal()">✕</button>
+    </div>
+    <div class="ex-modal-body">
+      <div class="ex-modal-params" id="emParams"></div>
+      <div class="ex-modal-section">
+        <h4>О упражнении</h4>
+        <p id="emDesc" style="font-size:13px;color:var(--t2);line-height:1.7;"></p>
+      </div>
+      <div class="ex-modal-section">
+        <h4>Как делать</h4>
+        <div class="ex-modal-steps" id="emSteps"></div>
+      </div>
+      <div class="ex-modal-section">
+        <h4>⚠️ Ошибки и противопоказания</h4>
+        <div class="ex-modal-warn" id="emWarn"></div>
+      </div>
+      <iframe class="ex-modal-yt" id="emYT" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" src=""></iframe>
+    </div>
+  </div>
+</div>
+
 <!-- DRAWER -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="maybeClose(event)">
   <div class="drawer">
@@ -549,61 +606,165 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 // ═══════════════════════════════════════
 
 const DAILY = [
-  {id:'d1',n:'Diaphragmatic Breathing 90/90',ru:'Диафрагмальное дыхание',p:'3 мин · вдох 4с → пауза 2с → выдох 6с',yt:'https://www.youtube.com/watch?v=LADa1fkj7kE'},
-  {id:'d2',n:'Knee-to-Chest',ru:'Колено к груди лёжа',p:'5 раз × нога · 15 сек удержание',yt:'https://www.youtube.com/watch?v=BhKwPKvVz3E'},
-  {id:'d3',n:'Cat-Cow',ru:'Кошка–Корова',p:'10 повторений · темп 4/4 сек',yt:'https://www.youtube.com/watch?v=MgDn34q4Hm8'},
-  {id:'d4',n:'Bird Dog',ru:'Птица-Собака',p:'8–10 раз × сторону · 5–7 сек',yt:'https://www.youtube.com/watch?v=ZdAHe9_HeEw'},
-  {id:'d5',n:'Dead Bug',ru:'Мёртвый жук',p:'8 раз × сторону · поясница к полу',yt:'https://www.youtube.com/watch?v=qXe5TmiaLGo'},
-  {id:'d6',n:'Glute Bridge',ru:'Ягодичный мост',p:'12–15 повт · 3 сек вверху',yt:'https://www.youtube.com/watch?v=wPM8icPu6H8'},
-  {id:'d7',n:'Side Plank (от коленей)',ru:'Боковая планка',p:'20–30 сек × сторону',yt:'https://www.youtube.com/watch?v=iNbH7_edNI8'},
-  {id:'d8',n:'Thoracic Foam Rolling',ru:'Роллер — только грудной отдел!',p:'8–10 волн · 2 мин',yt:'https://www.youtube.com/watch?v=8cOBsQMi8QM'},
+  {id:'d1',n:'Diaphragmatic Breathing 90/90',ru:'Диафрагмальное дыхание',p:'3 мин · вдох 4с → пауза 2с → выдох 6с',
+   about:'Базовое упражнение для активации глубокого кора. Диафрагмальное дыхание создаёт внутрибрюшное давление, которое стабилизирует поясничный отдел позвоночника лучше любого корсета.',
+   steps:['Лягте на спину, голени положите на стул под углом 90° (бёдра вертикально, голени горизонтально)','Одну руку положите на живот, другую на грудь','Вдох 4 секунды через нос — живот поднимается вверх, грудь остаётся неподвижной','Пауза 2 секунды','Выдох 6 секунд через сжатые губы — живот опускается','Повторить 10–12 циклов'],
+   warn:'Плечи поднимаются и надувается грудь — значит, дышите грудью, а не диафрагмой. Уменьшите объём вдоха.',
+   yt:'https://www.youtube.com/watch?v=LADa1fkj7kE'},
+  {id:'d2',n:'Knee-to-Chest',ru:'Колено к груди лёжа',p:'5 раз × нога · 15 сек удержание',
+   about:'Мягкая мобилизация поясничного отдела и крестцово-подвздошного сустава. Снимает утреннюю скованность и уменьшает компрессию в дегенерированных дисках.',
+   steps:['Лягте на спину, ноги вытянуты','Согните одну ногу в колене и подтяните к груди, обхватив руками за бедро или голень','Держите 15 секунд, слегка покачивайтесь','Поясница остаётся прижатой к полу — не отрывайте','Плавно верните ногу и повторите с другой стороны'],
+   warn:'Нельзя отрывать поясницу от пола и тянуть через боль. Если чувствуете прострел в ногу — прекратите.',
+   yt:'https://www.youtube.com/watch?v=WvDDUPnU2N8'},
+  {id:'d3',n:'Cat-Cow',ru:'Кошка–Корова',p:'10 повторений · темп 4/4 сек',
+   about:'Классическое упражнение из йоги для восстановления сегментарной подвижности позвонков. Улучшает кровоснабжение межпозвонковых дисков и снимает мышечный спазм.',
+   steps:['Встаньте на четвереньки: запястья под плечами, колени под бёдрами','КОШКА: на выдохе — округлите спину вверх, голову опустите вниз, копчик вниз','КОРОВА: на вдохе — прогните спину вниз, голову поднимите вверх, копчик вверх','Движение медленное и плавное: 4 секунды в одну сторону, 4 секунды обратно','Амплитуда — насколько комфортно, без боли'],
+   warn:'Резкие рывки и «щелчки» в пояснице — уменьшите амплитуду. Нельзя делать через острую боль.',
+   yt:'https://www.youtube.com/watch?v=Xn6ey6cVjCU'},
+  {id:'d4',n:'Bird Dog',ru:'Птица-Собака',p:'8–10 раз × сторону · 5–7 сек',
+   about:'Упражнение McGill Big 3. Активирует мультифидус и поперечную мышцу живота — глубокие стабилизаторы позвоночника. Обязательная основа реабилитации при протрузиях по данным доказательной медицины.',
+   steps:['Встаньте на четвереньки, нейтральная поясница (не прогибайтесь)','Одновременно вытяните правую руку вперёд и левую ногу назад — до параллели с полом','Держите 5–7 секунд: таз не поворачивается, поясница не проваливается','Медленно верните руку и ногу, не касаясь пола','Повторите на другой стороне'],
+   warn:'Таз «выкручивается» в сторону поднятой ноги — главная ошибка. Поясница провисает вниз — уменьшите амплитуду. Замена при боли: только нога без руки.',
+   yt:'https://www.youtube.com/watch?v=HsYNLzY_ZBg'},
+  {id:'d5',n:'Dead Bug',ru:'Мёртвый жук',p:'8 раз × сторону · поясница к полу',
+   about:'Упражнение из ЛФК для глубокой стабилизации поясничного отдела. Тренирует поперечную мышцу живота в условиях движения конечностей — именно то, что происходит при ходьбе и теннисе.',
+   steps:['Лягте на спину. Руки вертикально вверх, бёдра 90°, голени горизонтально','Прижмите поясницу к полу — она должна оставаться прижатой ВСЁ время','На выдохе медленно опускайте правую руку за голову и одновременно левую ногу вниз','Не касайтесь пола! Верните и повторите на другую сторону','Темп: 3–4 секунды вниз, 3–4 секунды вверх'],
+   warn:'Поясница отрывается от пола — главный признак перегрузки. Уменьшите амплитуду или делайте только ноги без рук. Нельзя задерживать дыхание.',
+   yt:'https://www.youtube.com/watch?v=w3d8lKDXUVs'},
+  {id:'d6',n:'Glute Bridge',ru:'Ягодичный мост',p:'12–15 повт · 3 сек вверху',
+   about:'Ключевое упражнение для активации ягодичных мышц. Слабые ягодицы — одна из главных причин перегрузки поясницы. При протрузиях ягодичный мост безопасен и эффективен.',
+   steps:['Лягте на спину, ноги согнуты, стопы на полу на ширине бёдер','Напрягите ягодицы и поднимите таз до прямой линии плечи–бёдра–колени','Держите 3 секунды, сжимая ягодицы','Медленно опустите таз, не касаясь пола полностью','Повторите 12–15 раз'],
+   warn:'Переразгибание поясницы вверх — таз должен быть в одной линии с телом, не выше. Нельзя запрокидывать шею назад.',
+   yt:'https://www.youtube.com/watch?v=d-oWA1G_UUA'},
+  {id:'d7',n:'Side Plank (от коленей)',ru:'Боковая планка',p:'20–30 сек × сторону',
+   about:'Упражнение McGill Big 3. Тренирует боковую стабилизацию позвоночника и квадратную мышцу поясницы. Критически важно для теннисистов — именно боковые стабилизаторы работают при ударах.',
+   steps:['Лягте на бок, опора на локоть (локоть под плечом), колени согнуты — это более лёгкий вариант','Поднимите бёдра: тело образует прямую линию от головы до колен','Нижнее бедро не провисает, таз не уходит назад','Держите 20–30 секунд, дышите','Смените сторону'],
+   warn:'При боли в плече — замените на Clamshell (раскрытие ног с резинкой лёжа). Таз не должен опускаться и поворачиваться.',
+   yt:'https://www.youtube.com/watch?v=nBc0g3rhi8I'},
+  {id:'d8',n:'Thoracic Foam Rolling',ru:'Роллер — только грудной отдел!',p:'8–10 волн · 2 мин',
+   about:'Мобилизация грудного отдела позвоночника. При сглаженном лордозе и протрузиях в пояснице часто зажат грудной отдел — это компенсаторно увеличивает нагрузку на поясницу.',
+   steps:['Положите роллер поперёк верхней части спины — под лопатками','Руки скрещены на груди или за головой','Медленно «перекатывайтесь» от лопаток до нижних рёбер','8–10 волн, на болезненных точках задерживайтесь на 5–10 секунд','СТОП у нижних рёбер — дальше на поясницу не заходить'],
+   warn:'КАТЕГОРИЧЕСКИ нельзя катать поясницу на роллере — точечная нагрузка на дегенерированный диск опасна. Только грудной отдел.',
+   yt:'https://www.youtube.com/watch?v=z8_YvFEE4Es'},
 ];
 
 const TRAIN_A = [
-  {id:'a1',n:'Dead Bug + гантели 2 кг',ru:'Мёртвый жук с отягощением',p:'3×8/сторону',yt:'https://www.youtube.com/watch?v=qXe5TmiaLGo',cat:'A'},
-  {id:'a2',n:'Bird Dog + резинка',ru:'Птица-Собака с резинкой на стопе',p:'3×10/сторону · 5 сек',yt:'https://www.youtube.com/watch?v=ZdAHe9_HeEw',cat:'A'},
-  {id:'a3',n:'Single-Leg Glute Bridge',ru:'Ягодичный мост на одной ноге',p:'3×10/ногу',yt:'https://www.youtube.com/watch?v=VUl8R0kn6v4',cat:'A'},
-  {id:'a4',n:'Side Plank + подъём ноги',ru:'Боковая планка с подъёмом',p:'3×30 сек/сторону',yt:'https://www.youtube.com/watch?v=iNbH7_edNI8',cat:'A'},
-  {id:'a5',n:'Pallof Press',ru:'Паллоф-жим (антиротация)',p:'3×12/сторону · 2 сек',yt:'https://www.youtube.com/watch?v=P16SQlmWj1o',cat:'A'},
-  {id:'a6',n:'Band Row горизонтальная',ru:'Тяга резинки горизонтально',p:'3×15',yt:'https://www.youtube.com/watch?v=PYj77in44ms',cat:'A'},
-  {id:'a7',n:'Floor Press / на мяче',ru:'Жим гантелей лёжа',p:'3×10–12 · 8–14 кг',yt:'https://www.youtube.com/watch?v=Q_Bpj91Yiis',cat:'A'},
-  {id:'a8',n:'Romanian Deadlift',ru:'Румынская тяга (Hip Hinge)',p:'3×10 · 10–16 кг',yt:'https://www.youtube.com/watch?v=ndfZi5fDaVM',cat:'A'},
-  {id:'a9',n:'Goblet Squat',ru:'Приседание с гантелью у груди',p:'3×12 · 16–24 кг',yt:'https://www.youtube.com/watch?v=6mf0oa2GGUc',cat:'A'},
+  {id:'a1',n:'Dead Bug + гантели 2 кг',ru:'Мёртвый жук с отягощением',p:'3×8/сторону',cat:'A',
+   about:'Усложнённая версия базового Dead Bug. Лёгкое отягощение увеличивает нагрузку на поперечную мышцу живота без риска для поясницы.',
+   steps:['Лягте на спину с гантелями 1–2 кг в руках, руки вертикально вверх','Поясница плотно к полу — всегда','На выдохе медленно опускайте правую руку за голову и одновременно левую ногу вниз','Не касаясь пола, вернитесь и повторите на другую сторону'],
+   warn:'Поясница отрывается от пола — уберите вес или уменьшите амплитуду.',
+   yt:'https://www.youtube.com/watch?v=w3d8lKDXUVs'},
+  {id:'a2',n:'Bird Dog + резинка',ru:'Птица-Собака с резинкой на стопе',p:'3×10/сторону · 5 сек',cat:'A',
+   about:'Лёгкая резинка на стопе создаёт дополнительное сопротивление для ягодичной мышцы. Повышает нейромышечный контроль.',
+   steps:['Наденьте лёгкую резинку на стопы (выше голеностопа)','Встаньте на четвереньки с нейтральной поясницей','Вытяните противоположные руку и ногу, преодолевая сопротивление резинки','Удержание 5 секунд, таз не поворачивается'],
+   warn:'Таз скручивается — уберите резинку или уменьшите амплитуду.',
+   yt:'https://www.youtube.com/watch?v=HsYNLzY_ZBg'},
+  {id:'a3',n:'Single-Leg Glute Bridge',ru:'Ягодичный мост на одной ноге',p:'3×10/ногу',cat:'A',
+   about:'Унилатеральная версия моста. Выявляет и устраняет дисбаланс между сторонами, увеличивает нагрузку на каждую ягодицу вдвое.',
+   steps:['Лягте на спину, одна нога согнута — опора, вторая вытянута или на колене другой ноги','Поднимите таз до прямой линии плечи–бёдра','Держите 3 секунды, ягодица напряжена','Не позволяйте тазу перекашиваться'],
+   warn:'Таз «перекашивается» в одну сторону — вернитесь к двуногому варианту.',
+   yt:'https://www.youtube.com/watch?v=d-oWA1G_UUA'},
+  {id:'a4',n:'Side Plank + подъём ноги',ru:'Боковая планка с подъёмом',p:'3×30 сек/сторону',cat:'A',
+   about:'Полная боковая планка с дополнительным подъёмом верхней ноги — нагружает среднюю ягодичную, которая критична для стабилизации таза при ходьбе и теннисе.',
+   steps:['Полная боковая планка: опора на стопы и локоть','Поднимите верхнюю ногу на 20–30 см','Держите 30 секунд, дышите','Таз не опускается, спина прямая'],
+   warn:'Боль в плече — перейдите на вариант от коленей или замените на Clamshell.',
+   yt:'https://www.youtube.com/watch?v=nBc0g3rhi8I'},
+  {id:'a5',n:'Pallof Press',ru:'Паллоф-жим (антиротация)',p:'3×12/сторону · 2 сек',cat:'A',
+   about:'Упражнение на антиротацию — именно то, что нужно теннисисту. Тренирует способность кора сопротивляться скручиванию, что защищает поясницу при ударах.',
+   steps:['Закрепите резинку сбоку на уровне груди (за ножку стола, за дверную ручку)','Встаньте боком к точке крепления, ручка у груди','Медленно выпрямите руки вперёд — удержание 2 секунды','Верните к груди. Корпус не поворачивается!','Повторите 12 раз, смените сторону'],
+   warn:'Корпус разворачивается к точке крепления — уменьшите сопротивление резинки.',
+   yt:'https://www.youtube.com/watch?v=LoGYqxoEiXY'},
+  {id:'a6',n:'Band Row горизонтальная',ru:'Тяга резинки горизонтально',p:'3×15',cat:'A',
+   about:'Укрепляет средние трапеции и ромбовидные мышцы — мышцы, которые удерживают лопатки и стабилизируют плечевой пояс при ударах в теннисе.',
+   steps:['Закрепите резинку на уровне груди спереди','Возьмите ручки, шаг назад чтобы создать натяжение','Потяните к груди, сводя лопатки','Локти вдоль тела, корпус не раскачивается','Медленно верните'],
+   warn:'Корпус раскачивается назад — уменьшите сопротивление или повторения.',
+   yt:'https://www.youtube.com/watch?v=xs2riXDnqBo'},
+  {id:'a7',n:'Floor Press / на мяче',ru:'Жим гантелей лёжа',p:'3×10–12 · 8–14 кг',cat:'A',
+   about:'Жим на полу ограничивает амплитуду, защищая плечи. На мяче 80 см дополнительно задействует стабилизаторы корпуса.',
+   steps:['На полу: лягте, локти до касания пола — это и есть нижняя точка','На мяче: спина на мяче, бёдра подняты в положении «табуретки»','Жим гантелей от груди вверх, локти чуть уже 90°','Поясница нейтральна — не прогибайтесь дугой'],
+   warn:'Прогиб поясницы при жиме — напрягите ягодицы и втяните рёбра.',
+   yt:'https://www.youtube.com/watch?v=d-oWA1G_UUA'},
+  {id:'a8',n:'Romanian Deadlift',ru:'Румынская тяга (Hip Hinge)',p:'3×10 · 10–16 кг',cat:'A',
+   about:'Базовое движение по типу Hip Hinge — «шарнир бедра». Укрепляет заднюю цепь: ягодицы, хамстринги, разгибатели спины. Первые 4 недели при боли >3/10 — пропустить.',
+   steps:['Встаньте, гантели в руках перед бёдрами','Отведите таз назад — наклон происходит ОТ БЁДЕР, не от поясницы','Гантели скользят вдоль бёдер вниз до голеней','Спина прямая нейтральная на протяжении всего движения','Вернитесь, напрягая ягодицы — не поясницу'],
+   warn:'Округление поясницы — уменьшить вес и амплитуду. Первые 4 недели при боли пропускать.',
+   yt:'https://www.youtube.com/watch?v=w8618QnyZi8'},
+  {id:'a9',n:'Goblet Squat',ru:'Приседание с гантелью у груди',p:'3×12 · 16–24 кг',cat:'A',
+   about:'Безопасный вариант приседа при протрузиях. Гантель у груди смещает центр тяжести вперёд, уменьшая нагрузку на поясницу. Укрепляет квадрицепсы, ягодицы и кор.',
+   steps:['Возьмите гантель двумя руками вертикально у груди','Ноги на ширине плеч, носки слегка наружу','Приседайте до параллели — локти проходят между коленями изнутри','Пятки на полу, спина прямая','Встаньте, напрягая ягодицы'],
+   warn:'"Butt-wink" (скругление таза внизу) — уменьшить глубину. Колени не заваливаются внутрь.',
+   yt:'https://www.youtube.com/watch?v=3eP9ZkvnH5Y'},
 ];
 
 const TRAIN_B = [
-  {id:'b1',n:'Face Pull с резинкой',ru:'Тяга к лицу с резинкой',p:'3×15',yt:'https://www.youtube.com/watch?v=AlTGQrDOd98',cat:'B'},
-  {id:'b2',n:'Band Pull-Apart',ru:'Разведение резинки',p:'3×20',yt:'https://www.youtube.com/watch?v=5JmWguyvu7Y',cat:'B'},
-  {id:'b3',n:'Single-Arm DB Row',ru:'Тяга гантели в наклоне',p:'3×10/сторону · 14–20 кг',yt:'https://www.youtube.com/watch?v=pYcpY20QaE8',cat:'B'},
-  {id:'b4',n:'Wall Angel',ru:'Ангел у стены',p:'3×12',yt:'https://www.youtube.com/watch?v=wLsOc1kBkM4',cat:'B'},
-  {id:'b5',n:'Nordic Curl (только вниз)',ru:'Нордическое сгибание — эксцентрик',p:'3×5–6 · опускание 4–5 сек',yt:'https://www.youtube.com/watch?v=7WRVBLyFiQ8',cat:'B'},
-  {id:'b6',n:'Lateral Band Walk + Clamshell',ru:'Боковая ходьба + Моллюск',p:'3×12+12',yt:'https://www.youtube.com/watch?v=7bMDTCqzxsQ',cat:'B'},
-  {id:'b7',n:'Bulgarian Split Squat',ru:'Болгарский сплит-присед',p:'3×10/ногу · 8–14 кг',yt:'https://www.youtube.com/watch?v=2C-uNgKwPLE',cat:'B'},
-  {id:'b8',n:'TRX Row',ru:'Горизонтальная тяга в петлях TRX',p:'3×12',yt:'https://www.youtube.com/watch?v=ufbFBUCNEPc',cat:'B'},
-  {id:'b9',n:'Negative Pull-Up',ru:'Негативные подтягивания',p:'3×3–5 · опускание 4–5 сек',yt:'https://www.youtube.com/watch?v=R4XbkMXGXaI',cat:'pull'},
+  {id:'b1',n:'Face Pull с резинкой',ru:'Тяга к лицу с резинкой',p:'3×15',cat:'B',
+   about:'Укрепляет задние дельтоиды и вращательную манжету плеча. Критически важно для теннисистов — профилактика травм плеча и улучшение стабилизации лопатки.',
+   steps:['Закрепите резинку на уровне лица','Возьмите ручки или саму резинку обеими руками','Потяните к лицу: локти уходят вверх и в стороны под углом 45° выше плеч','Лопатки сводятся в конечной точке','Медленно верните'],
+   warn:'Локти уходят вниз к плечам — подтяните их выше. Нельзя тянуть к шее.',
+   yt:'https://www.youtube.com/watch?v=OmE4XBFEl8A'},
+  {id:'b2',n:'Band Pull-Apart',ru:'Разведение резинки',p:'3×20',cat:'B',
+   about:'Активирует нижние трапеции и задние дельтоиды. Противодействует «скруглению» плеч при длительном сидении. Делать в начале каждой тренировки Б.',
+   steps:['Держите резинку горизонтально перед собой прямыми руками на уровне груди','Разведите руки в стороны до касания резинкой груди','Лопатки сводятся в конечной точке','Медленно верните'],
+   warn:'Плечи поднимаются к ушам — опустите их и удерживайте на протяжении всего движения.',
+   yt:'https://www.youtube.com/watch?v=xs2riXDnqBo'},
+  {id:'b3',n:'Single-Arm DB Row',ru:'Тяга гантели в наклоне',p:'3×10/сторону · 14–20 кг',cat:'B',
+   about:'Укрепляет широчайшие мышцы спины и ромбовидные. Базовое упражнение для развития силы тяги — важной составляющей теннисного удара.',
+   steps:['Колено и рука опорной стороны на скамье или стуле','Спина горизонтальна и прямая, нейтральная поясница','Свободная рука опускает гантель вниз','Потяните локоть вдоль тела вверх к боку — как «завести мотор»','Медленно опустите'],
+   warn:'Спина скручивается за гантелью — уменьшить вес. Локоть не должен уходить в сторону.',
+   yt:'https://www.youtube.com/watch?v=w8618QnyZi8'},
+  {id:'b4',n:'Wall Angel',ru:'Ангел у стены',p:'3×12',cat:'B',
+   about:'Мобилизует грудной отдел и укрепляет нижние трапеции. При сглаженном грудном кифозе и «компьютерной» осанке — обязательное упражнение.',
+   steps:['Встаньте спиной к стене, прижмите: поясницу, лопатки, затылок','Руки согнуты в «W»: локти на уровне плеч, касаются стены','Медленно поднимите руки в «Y» — всё время касаясь стены','Медленно верните в «W»','Если не можете касаться — уменьшите амплитуду'],
+   warn:'Спина отрывается от стены или голова тянется вперёд — уменьшить амплитуду.',
+   yt:'https://www.youtube.com/watch?v=nBc0g3rhi8I'},
+  {id:'b5',n:'Nordic Curl (только вниз)',ru:'Нордическое сгибание — эксцентрик',p:'3×5–6 · опускание 4–5 сек',cat:'B',
+   about:'Эксцентрическое укрепление хамстрингов. Доказано снижает риск травм задней поверхности бедра. При протрузиях — только медленное опускание без подъёма.',
+   steps:['Стоя на коленях, партнёр или TRX фиксирует стопы','Тело прямое от колен до головы','Медленно наклоняйтесь вперёд — 4–5 секунд','В нижней точке упритесь руками в пол','Руки отжимаются, помогая вернуться — подъём НЕ делать самостоятельно','Только опускание — это и есть эксцентрик'],
+   warn:'Боль в пояснице при выполнении — замените на Prone Hip Extension (лёжа на животе поднять прямую ногу).',
+   yt:'https://www.youtube.com/watch?v=cUVkolMHICE'},
+  {id:'b6',n:'Lateral Band Walk + Clamshell',ru:'Боковая ходьба + Моллюск',p:'3×12+12',cat:'B',
+   about:'Два упражнения для средней ягодичной мышцы — стабилизатора таза. Слабая средняя ягодичная — причина «Тренделенбурга» при ходьбе и перегрузки поясницы.',
+   steps:['БОКОВАЯ ХОДЬБА: резинка над коленями, присед под 20°, делайте боковые шаги — 12 шагов в каждую сторону','МОЛЛЮСК: лягте на бок, резинка над коленями, колени согнуты','Поднимайте верхнее колено как открывающаяся ракушка — не поворачивайте таз','12 повторений, смените сторону'],
+   warn:'Таз раскачивается при ходьбе — уменьшить шаг и глубину приседа. Таз поворачивается в «Моллюске» — уменьшить амплитуду.',
+   yt:'https://www.youtube.com/watch?v=xs2riXDnqBo'},
+  {id:'b7',n:'Bulgarian Split Squat',ru:'Болгарский сплит-присед',p:'3×10/ногу · 8–14 кг',cat:'B',
+   about:'Унилатеральное упражнение на квадрицепсы и ягодицы. Меньше осевой нагрузки на позвоночник чем обычный присед, при этом хорошо нагружает каждую ногу отдельно.',
+   steps:['Задняя нога на диване или стуле на уровне колена','Передняя нога впереди — опускаемся вниз','Колено передней ноги не выходит далеко за носок','Корпус прямой, поясница нейтральна','Гантели в руках или без'],
+   warn:'Поясница округляется или скручивается — уменьшить глубину. Боль в колене — уменьшить амплитуду.',
+   yt:'https://www.youtube.com/watch?v=3eP9ZkvnH5Y'},
+  {id:'b8',n:'TRX Row',ru:'Горизонтальная тяга в петлях TRX',p:'3×12',cat:'B',
+   about:'Горизонтальная тяга с весом тела. Угол наклона корпуса регулирует нагрузку — чем горизонтальнее, тем тяжелее. Укрепляет всю среднюю часть спины.',
+   steps:['Держитесь за ручки TRX, тело наклонено назад','Тело прямое как доска от пяток до плеч — кор напряжён','Тяните грудь к рукам, сводя лопатки','Локти вдоль тела','Медленно верните'],
+   warn:'Таз провисает — напрячь кор и ягодицы. Замена без TRX — тяга резинки.',
+   yt:'https://www.youtube.com/watch?v=xs2riXDnqBo'},
+  {id:'b9',n:'Negative Pull-Up',ru:'Негативные подтягивания',p:'3×3–5 · опускание 4–5 сек',cat:'pull',
+   about:'Самый эффективный способ научиться подтягиваться. Эксцентрическая фаза (опускание) развивает силу быстрее концентрической. При протрузиях — безопасно при нейтральной пояснице.',
+   steps:['Запрыгните на турник в верхнюю позицию: подбородок выше перекладины','Медленно опускайтесь вниз — считайте до 4–5','В нижней точке — полностью прямые руки','Снова запрыгните — не тянитесь самостоятельно вверх','Отдых 2 минуты между подходами'],
+   warn:'Резкое падение вниз — держите темп 4–5 секунд. При болях в пояснице в висе — замените на lat pulldown в тренажёре.',
+   yt:'https://www.youtube.com/watch?v=gqhvJLgXQF0'},
 ];
 
 const WARMUP = [
-  {n:'Cat-Cow',ru:'Кошка–Корова',p:'×10 · 2 мин',desc:'На четвереньках: прогиб вниз (вдох) → округление вверх (выдох). Медленно.',yt:'https://www.youtube.com/watch?v=MgDn34q4Hm8'},
-  {n:"World's Greatest Stretch",ru:'«Мировое» растяжение',p:'×5 каждая сторона · 2 мин',desc:'Выпад → рука на пол рядом со стопой → другая рука вверх с ротацией → 3–4 сек.',yt:'https://www.youtube.com/watch?v=rofFEyLnzSs'},
-  {n:'Bird Dog',ru:'Птица-Собака',p:'×10/сторону · 1 мин',desc:'Противоположные рука+нога, держим 5 сек. Поясница нейтральна.',yt:'https://www.youtube.com/watch?v=ZdAHe9_HeEw'},
-  {n:'Glute Bridge',ru:'Ягодичный мост',p:'×15 · 1 мин',desc:'До линии плечи–колени, 3 сек вверху. Без переразгибания поясницы.',yt:'https://www.youtube.com/watch?v=wPM8icPu6H8'},
-  {n:'Hip Openers 90/90',ru:'Раскрытие тазобедренных',p:'×5/сторону · 2 мин',desc:'Сидя: одна нога 90° вперёд, другая 90° в сторону. Наклон 3–5 сек.',yt:'https://www.youtube.com/watch?v=ERfHfl_6bGY'},
-  {n:'Standing Trunk Rotations',ru:'Ротации корпуса стоя',p:'×20 · 1 мин',desc:'Поворот из грудного отдела, поясница стабильна. Без рывков.',yt:'https://www.youtube.com/watch?v=I3bsGmGCVYk'},
-  {n:'Jumping Jacks / бег на месте',ru:'Прыжки или лёгкий бег',p:'30 сек × 2 · 1 мин',desc:'Мягкое приземление. На жёстком — бег на месте.',yt:'https://www.youtube.com/watch?v=c4DAnQ6DtF8'},
-  {n:'Band Pull-Apart + Face Pull',ru:'Разведение + тяга к лицу',p:'×15 каждого · 1 мин',desc:'Pull-apart: резинка горизонтально, развести до груди. Face pull: к лицу, локти вверх.',yt:'https://www.youtube.com/watch?v=5JmWguyvu7Y'},
-  {n:'Лёгкие подачи 50%',ru:'Разминочные подачи',p:'10 ударов · 3 мин',desc:'Фокус на плавность и технику, не на скорость.',yt:'https://www.youtube.com/watch?v=OwWVoOSRwrA'},
+  {n:'Cat-Cow',ru:'Кошка–Корова',p:'×10 · 2 мин',desc:'На четвереньках: прогиб вниз (вдох) → округление вверх (выдох). Медленно.',yt:'https://www.youtube.com/watch?v=Xn6ey6cVjCU'},
+  {n:"World's Greatest Stretch",ru:'«Мировое» растяжение',p:'×5 каждая сторона · 2 мин',desc:'Выпад → рука на пол рядом со стопой → другая рука вверх с ротацией → 3–4 сек.',yt:'https://www.youtube.com/watch?v=Xn6ey6cVjCU'},
+  {n:'Bird Dog',ru:'Птица-Собака',p:'×10/сторону · 1 мин',desc:'Противоположные рука+нога, держим 5 сек. Поясница нейтральна.',yt:'https://www.youtube.com/watch?v=HsYNLzY_ZBg'},
+  {n:'Glute Bridge',ru:'Ягодичный мост',p:'×15 · 1 мин',desc:'До линии плечи–колени, 3 сек вверху. Без переразгибания поясницы.',yt:'https://www.youtube.com/watch?v=d-oWA1G_UUA'},
+  {n:'Hip Openers 90/90',ru:'Раскрытие тазобедренных',p:'×5/сторону · 2 мин',desc:'Сидя: одна нога 90° вперёд, другая 90° в сторону. Наклон 3–5 сек.',yt:'https://www.youtube.com/watch?v=AIb-iDdFYKs'},
+  {n:'Standing Trunk Rotations',ru:'Ротации корпуса стоя',p:'×20 · 1 мин',desc:'Поворот из грудного отдела, поясница стабильна. Без рывков.',yt:'https://www.youtube.com/watch?v=AIb-iDdFYKs'},
+  {n:'Jumping Jacks / бег на месте',ru:'Прыжки или лёгкий бег',p:'30 сек × 2 · 1 мин',desc:'Мягкое приземление. На жёстком — бег на месте.',yt:'https://www.youtube.com/watch?v=AIb-iDdFYKs'},
+  {n:'Band Pull-Apart + Face Pull',ru:'Разведение + тяга к лицу',p:'×15 каждого · 1 мин',desc:'Pull-apart: резинка горизонтально, развести до груди. Face pull: к лицу, локти вверх.',yt:'https://www.youtube.com/watch?v=xs2riXDnqBo'},
+  {n:'Лёгкие подачи 50%',ru:'Разминочные подачи',p:'10 ударов · 3 мин',desc:'Фокус на плавность и технику, не на скорость.',yt:'https://www.youtube.com/watch?v=HsYNLzY_ZBg'},
 ];
 
 const COOLDOWN = [
-  {n:'Knee-to-Chest',ru:'Колено к груди лёжа',p:'30 сек × нога',desc:'Мягкое покачивание. Поясница прижата к полу.',yt:'https://www.youtube.com/watch?v=BhKwPKvVz3E'},
-  {n:"Child's Pose",ru:'Поза ребёнка',p:'60 сек',desc:'Руки вытянуты, лоб на полу. Расслабляться на каждом выдохе.',yt:'https://www.youtube.com/watch?v=2MJGg-dUKh0'},
-  {n:'Cat-Cow медленно',ru:'Кошка–Корова восстановительная',p:'×10 очень медленно',desc:'Снимает остаточный тонус разгибателей. Амплитуда — насколько комфортно.',yt:'https://www.youtube.com/watch?v=MgDn34q4Hm8'},
-  {n:'Supine Lumbar Rotation',ru:'Ротация поясницы лёжа',p:'×10/сторону',desc:'Колени вправо – голова влево. 3–5 сек. Без боли и рывков.',yt:'https://www.youtube.com/watch?v=jxuGQFcfMWY'},
-  {n:'Hip Flexor Stretch',ru:'Растяжка сгибателя бедра выпадом',p:'30 сек × сторону',desc:'Колено на полу, таз вперёд-вниз (не прогибать поясницу!).',yt:'https://www.youtube.com/watch?v=2MJGg-dUKh0'},
-  {n:'Figure-4 Glute Stretch',ru:'Растяжка ягодиц «цифра 4»',p:'30 сек × сторону',desc:'Лодыжка на колено другой ноги → подтянуть бедро к груди.',yt:'https://www.youtube.com/watch?v=bPeJPQkIDxc'},
-  {n:'Hamstring Stretch with Band',ru:'Растяжка задней поверхности бедра',p:'30 сек × ногу',desc:'Лёжа, лента на стопе, нога вверх. Поясница к полу!',yt:'https://www.youtube.com/watch?v=gFbSlMFkrkE'},
-  {n:'Thoracic Foam Rolling',ru:'Роллер на грудном отделе',p:'2 мин · 8–10 волн',desc:'ТОЛЬКО верхняя спина. На пояснице — запрещено!',yt:'https://www.youtube.com/watch?v=8cOBsQMi8QM'},
+  {n:'Knee-to-Chest',ru:'Колено к груди лёжа',p:'30 сек × нога',desc:'Мягкое покачивание. Поясница прижата к полу.',yt:'https://www.youtube.com/watch?v=WvDDUPnU2N8'},
+  {n:"Child's Pose",ru:'Поза ребёнка',p:'60 сек',desc:'Руки вытянуты, лоб на полу. Расслабляться на каждом выдохе.',yt:'https://www.youtube.com/watch?v=9ZQ3m1i-S9E'},
+  {n:'Cat-Cow медленно',ru:'Кошка–Корова восстановительная',p:'×10 очень медленно',desc:'Снимает остаточный тонус разгибателей. Амплитуда — насколько комфортно.',yt:'https://www.youtube.com/watch?v=Xn6ey6cVjCU'},
+  {n:'Supine Lumbar Rotation',ru:'Ротация поясницы лёжа',p:'×10/сторону',desc:'Колени вправо – голова влево. 3–5 сек. Без боли и рывков.',yt:'https://www.youtube.com/watch?v=AIb-iDdFYKs'},
+  {n:'Hip Flexor Stretch',ru:'Растяжка сгибателя бедра выпадом',p:'30 сек × сторону',desc:'Колено на полу, таз вперёд-вниз (не прогибать поясницу!).',yt:'https://www.youtube.com/watch?v=9ZQ3m1i-S9E'},
+  {n:'Figure-4 Glute Stretch',ru:'Растяжка ягодиц «цифра 4»',p:'30 сек × сторону',desc:'Лодыжка на колено другой ноги → подтянуть бедро к груди.',yt:'https://www.youtube.com/watch?v=PfdxQ_leBXY'},
+  {n:'Hamstring Stretch with Band',ru:'Растяжка задней поверхности бедра',p:'30 сек × ногу',desc:'Лёжа, лента на стопе, нога вверх. Поясница к полу!',yt:'https://www.youtube.com/watch?v=UOOKg3AD0H4'},
+  {n:'Thoracic Foam Rolling',ru:'Роллер на грудном отделе',p:'2 мин · 8–10 волн',desc:'ТОЛЬКО верхняя спина. На пояснице — запрещено!',yt:'https://www.youtube.com/watch?v=z8_YvFEE4Es'},
   {n:'Diaphragmatic Breathing',ru:'Диафрагмальное дыхание',p:'2 мин · 10–12 циклов',desc:'Вдох 4с → пауза 2с → выдох 6с. Успокаивает нервную систему.',yt:'https://www.youtube.com/watch?v=LADa1fkj7kE'},
 ];
 
@@ -679,25 +840,76 @@ function mkCi(e, group, total){
   const done=!!S[group][e.id];
   const div=document.createElement('div');
   div.className='ci'+(done?' done':'');
-  // The tap area (checkbox + text) is one element
   const tap=document.createElement('div');
   tap.className='ci-tap';
   tap.innerHTML=`<div class="cb">${done?'✓':''}</div><div class="ci-body"><div class="ci-name">${e.n}</div><div class="ci-detail">${e.ru}${e.p?' · '+e.p:''}</div></div>`;
   tap.addEventListener('click',()=>toggle(group,e.id));
   div.appendChild(tap);
-  // YouTube button is a separate link element OUTSIDE the tap area
-  if(e.yt){
-    const a=document.createElement('a');
-    a.className='yt-btn';
-    a.href=e.yt;
-    a.target='_blank';
-    a.rel='noopener noreferrer';
-    a.textContent='▶ YT';
-    // prevent toggle when clicking YT
-    a.addEventListener('click',ev=>ev.stopPropagation());
-    div.appendChild(a);
+  // Info button opens modal with description + embedded YouTube
+  if(e.about||e.yt){
+    const btn=document.createElement('button');
+    btn.className='info-btn';
+    btn.innerHTML='ℹ';
+    btn.setAttribute('aria-label','Информация об упражнении');
+    btn.addEventListener('click',ev=>{ev.stopPropagation();openExModal(e);});
+    div.appendChild(btn);
   }
   return div;
+}
+
+// ═══════════════════════════════════════
+// EXERCISE INFO MODAL
+// ═══════════════════════════════════════
+function openExModal(e){
+  document.getElementById('emName').textContent=e.n;
+  document.getElementById('emRu').textContent=e.ru||'';
+  // Params chips
+  const paramsEl=document.getElementById('emParams');
+  paramsEl.innerHTML='';
+  if(e.p) e.p.split('·').forEach(p=>{
+    const chip=document.createElement('div');
+    chip.className='ex-param-chip';
+    chip.textContent=p.trim();
+    paramsEl.appendChild(chip);
+  });
+  // About
+  document.getElementById('emDesc').textContent=e.about||'';
+  // Steps
+  const stepsEl=document.getElementById('emSteps');
+  stepsEl.innerHTML='';
+  if(e.steps&&e.steps.length){
+    e.steps.forEach((s,i)=>{
+      const row=document.createElement('div');
+      row.className='ex-step';
+      row.innerHTML=`<div class="ex-step-num">${i+1}</div><div class="ex-step-text">${s}</div>`;
+      stepsEl.appendChild(row);
+    });
+  }
+  // Warn
+  document.getElementById('emWarn').textContent=e.warn||'';
+  // YouTube embed
+  const ytEl=document.getElementById('emYT');
+  if(e.yt){
+    const vid=e.yt.match(/[?&]v=([^&]+)/);
+    if(vid) ytEl.src=`https://www.youtube.com/embed/${vid[1]}?rel=0`;
+    else ytEl.src='';
+    ytEl.style.display='block';
+  } else {
+    ytEl.src='';
+    ytEl.style.display='none';
+  }
+  document.getElementById('exModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeExModal(){
+  document.getElementById('exModalOverlay').classList.remove('open');
+  document.getElementById('emYT').src=''; // stop video
+  document.body.style.overflow='';
+}
+
+function maybeCloseExModal(e){
+  if(e.target===document.getElementById('exModalOverlay')) closeExModal();
 }
 
 function renderDaily(){
@@ -866,18 +1078,24 @@ function renderLib(f){
   const exs=f==='all'?ALL_EX:ALL_EX.filter(e=>e.cat===f);
   const cc={daily:'chip-g',A:'chip-p',B:'chip-b',pull:'chip-r'};
   const cl={daily:'Ежедневный',A:'Тренировка А',B:'Тренировка Б',pull:'Подтягивания'};
-  document.getElementById('libGrid').innerHTML=exs.map(e=>`
-    <div class="ex-card">
+  document.getElementById('libGrid').innerHTML='';
+  exs.forEach(e=>{
+    const card=document.createElement('div');
+    card.className='ex-card';
+    card.style.cursor='pointer';
+    card.innerHTML=`
       <div class="ex-card-top">
         <div><div class="ex-card-name">${e.n}</div><div class="ex-card-ru">${e.ru||''}</div></div>
-        ${e.yt?`<a href="${e.yt}" target="_blank" rel="noopener noreferrer" class="yt-btn" style="margin-top:0">▶ YT</a>`:''}
+        <button class="info-btn" style="flex-shrink:0" onclick="event.stopPropagation();openExModal(${JSON.stringify(e).replace(/"/g,'&quot;')})">ℹ</button>
       </div>
       <div class="ex-chips">
         <span class="ec-chip ${cc[e.cat]||'chip-g'}">${cl[e.cat]||''}</span>
         ${e.p?`<span class="ec-chip chip-b">${e.p}</span>`:''}
       </div>
-    </div>
-  `).join('');
+    `;
+    card.addEventListener('click',()=>openExModal(e));
+    document.getElementById('libGrid').appendChild(card);
+  });
 }
 
 // ═══════════════════════════════════════
@@ -974,8 +1192,12 @@ function renderDrawer(mode){
   const items=mode==='warmup'?WARMUP:COOLDOWN;
   const cool=mode==='cooldown';
   document.getElementById('drawerTitle').textContent=cool?'ВОССТАНОВЛЕНИЕ':'РАЗМИНКА';
-  document.getElementById('drawerBody').innerHTML=items.map((x,i)=>`
-    <div class="d-item${cool?' cool':''}">
+  const body=document.getElementById('drawerBody');
+  body.innerHTML='';
+  items.forEach((x,i)=>{
+    const row=document.createElement('div');
+    row.className='d-item'+(cool?' cool':'');
+    row.innerHTML=`
       <div class="d-num">${i+1}</div>
       <div class="d-body">
         <div class="d-name">${x.n}</div>
@@ -983,11 +1205,18 @@ function renderDrawer(mode){
         <div class="d-desc">${x.desc}</div>
         <div class="d-param">${x.p}</div>
       </div>
-      <div style="flex-shrink:0;margin-top:2px;">
-        <a href="${x.yt}" target="_blank" rel="noopener noreferrer" class="yt-btn">▶ YT</a>
-      </div>
-    </div>
-  `).join('');
+    `;
+    const btn=document.createElement('button');
+    btn.className='info-btn';
+    btn.style.flexShrink='0';
+    btn.style.marginTop='2px';
+    btn.innerHTML='ℹ';
+    btn.addEventListener('click',()=>{
+      openExModal({n:x.n,ru:x.ru,p:x.p,about:x.desc,steps:[],warn:'',yt:x.yt});
+    });
+    row.appendChild(btn);
+    body.appendChild(row);
+  });
 }
 function closeDrawer(){document.getElementById('drawerOverlay').classList.remove('open');}
 function maybeClose(e){if(e.target===document.getElementById('drawerOverlay'))closeDrawer();}
