@@ -16,8 +16,16 @@
   --warn:#F0883E; --red:#F85149; --purple:#BC8CFF;
   --text:#E6EDF3; --t2:#8B949E; --t3:#484F58; --r:10px;
 }
+body.light {
+  --bg:#F5F7FA; --s1:#FFFFFF; --s2:#EEF1F6; --s3:#DDE3EE;
+  --border:#D0D7E3; --accent:#1A8A3C; --accent2:#1A6FCC;
+  --warn:#C05A10; --red:#CC2222; --purple:#7040CC;
+  --text:#1A1F2E; --t2:#4A5568; --t3:#8896AA;
+}
+.theme-btn{background:none;border:1.5px solid var(--border);border-radius:20px;padding:5px 10px;cursor:pointer;font-size:13px;color:var(--t2);transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif;}
+.theme-btn:active{opacity:.7;}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100dvh;overscroll-behavior:none;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100dvh;overscroll-behavior:none;transition:background .25s,color .25s;}
 .shell{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;}
 
 /* TOP BAR */
@@ -42,7 +50,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .pages::-webkit-scrollbar{width:0;}
 
 /* HERO */
-.hero{background:linear-gradient(135deg,#0E2A1A,#122A1F);border:1px solid rgba(57,211,83,.25);border-radius:var(--r);padding:14px;margin-bottom:10px;margin-top:4px;}
+.hero{background:linear-gradient(135deg,var(--s2),var(--s1));border:1px solid rgba(57,211,83,.25);border-radius:var(--r);padding:14px;margin-bottom:10px;margin-top:4px;}
 .hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .hero-date{font-size:13px;color:var(--t2);}
 .hero-phase{font-size:11px;background:rgba(57,211,83,.12);color:var(--accent);padding:3px 9px;border-radius:10px;font-weight:600;}
@@ -55,7 +63,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .hstat.orange .hv{color:var(--warn);}
 
 /* CONGRATS */
-.congrats{background:linear-gradient(135deg,#0E2A1A,#1A3D2C);border:1px solid var(--accent);border-radius:var(--r);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;animation:fadeIn .4s;}
+.congrats{background:linear-gradient(135deg,var(--s2),var(--s1));border:1px solid var(--accent);border-radius:var(--r);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;animation:fadeIn .4s;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .congrats-icon{font-size:30px;}
 .congrats h3{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:2px;}
@@ -258,6 +266,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
       <div class="topbar-logo">ТРЕНЕР</div>
       <div class="topbar-sub" id="todayStr"></div>
     </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
     <div class="topbar-week" onclick="promptWeek()">
       <div class="wn" id="wkNum">1</div>
       <div class="wl">НЕДЕЛЯ</div>
@@ -823,6 +832,15 @@ function todayTrain(){
 // RENDER TODAY
 // ═══════════════════════════════════════
 function init(){
+  // Apply saved theme first — before any rendering
+  const savedTheme=localStorage.getItem('theme')||'dark';
+  if(savedTheme==='light'){
+    document.body.classList.add('light');
+    document.getElementById('themeBtn').textContent='☀️';
+  } else {
+    document.getElementById('themeBtn').textContent='🌙';
+  }
+
   const d=new Date();
   document.getElementById('todayStr').textContent=d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('heroDate').textContent=d.toLocaleDateString('ru-RU',{weekday:'long'});
@@ -1277,6 +1295,16 @@ function resetTimer(){
 function updTimer(){
   const m=Math.floor(timerLeft/60),s=timerLeft%60;
   document.getElementById('timerDisp').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  const btn=document.getElementById('themeBtn');
+  btn.textContent=isLight?'☀️':'🌙';
+  localStorage.setItem('theme',isLight?'light':'dark');
 }
 
 // ═══════════════════════════════════════
