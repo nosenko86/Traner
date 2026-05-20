@@ -808,6 +808,22 @@ let S = {
 try{const sv=localStorage.getItem('trn3');if(sv)S={...S,...JSON.parse(sv)};}catch(e){}
 function save(){try{localStorage.setItem('trn3',JSON.stringify(S));}catch(e){}}
 
+// ── Сброс чеклистов при смене дня ──────────────────
+function getTodayStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+function resetIfNewDay(){
+  const today=getTodayStr();
+  if(S.lastDay && S.lastDay!==today){
+    // Новый день — сбрасываем галочки
+    S.daily={};
+    S.train={};
+    S.streak=(S.streak||0); // серию не трогаем
+  }
+  S.lastDay=today;
+  save();
+}
 // Date computed fresh on every call — not cached
 function getTodayDOW(){ return new Date().getDay(); }
 function getSchedIdx(){ const d=getTodayDOW(); return d===0?6:d-1; }
@@ -833,6 +849,9 @@ function todayTrain(){
 // RENDER TODAY
 // ═══════════════════════════════════════
 function init(){
+  // Сброс чеклистов при смене дня — первым делом
+  resetIfNewDay();
+
   // Apply saved theme first — before any rendering
   const savedTheme=localStorage.getItem('theme')||'dark';
   if(savedTheme==='light'){
@@ -973,6 +992,7 @@ function completeAll(){
   DAILY.forEach(e=>S.daily[e.id]=true);
   todayTrain().exs.forEach(e=>S.train[e.id]=true);
   S.streak=(S.streak||0)+1;
+  S.lastDay=getTodayStr();
   save(); renderDaily(); renderTrain(); updateStats();
 }
 
